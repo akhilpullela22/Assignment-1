@@ -103,12 +103,6 @@ class CommandInterface:
         return True
     
     def play(self, args):
-      """Place the digit (0 or 1) at the given (x,y) coordinate. 
-        x increases from left to right, starting at 0. y increases from top to bottom, starting at 0. 
-        So the top left corner has coordinates 0 0, and the bottom right is at n-1 m-1. 
-        You need to implement basic error handling and return the proper command status. Example:
-        play 1 2 0
-        = 1"""
         if len(args) != 3:
             print(f"= illegal move: {' '.join(args)} wrong number of arguments")
             return -1
@@ -146,20 +140,11 @@ class CommandInterface:
         self.grid[y][x] = str(digit)
         self.row_count[y][digit] += 1
         self.col_count[x][digit] += 1
-        print("=1")
+        print("= 1")
         return 1
     
 
     def legal(self, args):
-      """ Check if this move (in the same format as in play) is legal. 
-        Answer yes or no. 
-        The command status is = 1.
-        Usage example (on empty 3x3 board):
-        game 3 3
-        = 1
-        legal 0 0 0
-        yes
-        = 1 """
 
         if len(args) != 3:
             print("no")
