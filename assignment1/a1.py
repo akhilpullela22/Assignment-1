@@ -110,7 +110,7 @@ class CommandInterface:
         #This command generates and plays a random move and gives the move as its response. 
         # The move format is the same as for play: x y digit. 
         # If there is no legal move, output resign. The command status is = 1. 
-        if self.gird is None:
+        if self.grid is None:
             print("No game has been started yet.", file=sys.stderr)
             print("= -1\n")
             return False
@@ -131,22 +131,30 @@ class CommandInterface:
        2
        unfinished
        Output unfinished if the game is not over yet - the next player still has a move. The command status is = 1
+       The player who makes the last move wins. 
+       In other words, a player who does not have any legal move loses. 
+       This will happen sooner or later as the grid fills.
+
+
        """
         if self.grid is None:
             print("No game has been started yet.", file=sys.stderr)
             print("= -1\n")
             return
         # Check if the game is over
-        if all(cell != '.' for row in self.grid for cell in row):
-            # Simple logic to determine the winner: sum all cells and declare a winner
-            total = sum([int(cell) for row in self.grid for cell in row])
-            if total > (self.width * self.height) / 2:
-                print("1") # Player 1 wins
-            else:
-                print("0") # Player 0 wins
-        else:
-            print("unfinished")
+        empty_cells = [(x, y) for x in range(self.width) for y in range(self.height) if self.grid[y][x] == '.']
+        if not empty_cells:
+            print("1")
+            return True
+        # Check if the next player has a move
+        next_player = 1 if self.current_player == 0 else 0
+        for x, y in empty_cells:
+            if self.is_legal(x, y, next_player):
+                print("unfinished")
+                return True
+        print(str(self.current_player))
         return True
+    
     
     #======================================================================================
     # End of functions requiring implementation
