@@ -84,17 +84,55 @@ class CommandInterface:
         return True
     
     def play(self, args):
-        """Place the digit (0 or 1) at the given (x,y) coordinate. 
+      """Place the digit (0 or 1) at the given (x,y) coordinate. 
         x increases from left to right, starting at 0. y increases from top to bottom, starting at 0. 
         So the top left corner has coordinates 0 0, and the bottom right is at n-1 m-1. 
         You need to implement basic error handling and return the proper command status. Example:
         play 1 2 0
         = 1"""
-        raise NotImplementedError("This command is not yet implemented.")
-        return True
+        if len(args) != 3:
+            print(f"= illegal move: {' '.join(args)} wrong number of arguments")
+            return -1
+        
+        try:
+            x = int(args[0])
+            y = int(args[1])
+            digit = int(args[2])
+        except ValueError:
+            print(f"= illegal move: {' '.join(args)} wrong coordinate or number")
+            return -1
+        
+        if (x > self.n or y > self.m or x < 0 or y < 0):
+            print(f"= illegal move: {' '.join(args)} wrong coordinate")
+            return -1
+        
+        if digit != 1 or digit != 0:
+            print(f"= illegal move: {' '.join(args)} wrong number")
+            return -1
+        
+        if self.grid[y][x] != '.':
+            print(f"= illegal move: {' '.join(args)} occupied")
+            return -1
+        
+        # triples constraint
+        if self.check_triple(x, y, digit, args) == -1:
+            print(f"= illegal move: {' '.join(args)} three in a row")
+            return -1
+        
+        # balance constraint
+        if self.check_balance(x, y, digit, args) == -1:
+            print(f"= illegal move: {' '.join(args)} too many {digit}")
+            return -1
+        # make the move
+        self.grid[y][x] = str(digit)
+        self.row_count[y][digit] += 1
+        self.col_count[x][digit] += 1
+        print("=1")
+        return 1
     
+
     def legal(self, args):
-        """ Check if this move (in the same format as in play) is legal. 
+      """ Check if this move (in the same format as in play) is legal. 
         Answer yes or no. 
         The command status is = 1.
         Usage example (on empty 3x3 board):
@@ -103,8 +141,61 @@ class CommandInterface:
         legal 0 0 0
         yes
         = 1 """
-        raise NotImplementedError("This command is not yet implemented.")
-        return True
+
+        if len(args) != 3:
+            print("no")
+            return -1
+        
+        try:
+            x = int(args[0])
+            y = int(args[1])
+            digit = int(args[2])
+        except ValueError:
+            print("no")
+            return -1
+        
+        if (x > self.n or y > self.m or x < 0 or y < 0):
+            print("no")
+            return -1
+        
+        if digit != 1 or digit != 0:
+            print("no")
+            return -1
+        
+        if self.grid[y][x] != '.':
+            print("no")
+            return -1
+        
+        # triples constraint
+        if self.check_triple(x, y, digit, args) == -1:
+            print("no")
+            return -1
+        
+        # balance constraint
+        if self.check_balance(x, y, digit, args) == -1:
+            print("no")
+            return -1
+        
+        print("yes")
+        return 1
+    
+    def check_triple(self, x, y, digit, args):
+        row = self.grid[y][:]
+        row[x] = str(digit)
+        if '000' in ''.join(row) or '111' in ''.join(row):
+            return -1
+        col = [self.grid[i][x] for i in range(self.m)]
+        col[y] = str(digit)
+        if '000' in ''.join(col) or '111' in ''.join(col):
+            return -1
+    def check_balance(self, x, y, digit, args):
+        row_count = sum(1 for cell in self.grid[y] if cell == str(digit))
+        if row_count + 1 > (self.n + 1) // 2:
+            return -1
+        
+        col_count = sum(1 for i in range(self.m) if self.grid[i][x] == str(digit))
+        if col_count + 1 > (self.m + 1) // 2:
+            return -1
     
     def genmove(self, args):
         #This command generates and plays a random move and gives the move as its response. 
