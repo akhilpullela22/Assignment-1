@@ -69,18 +69,37 @@ class CommandInterface:
     #======================================================================================
 
     def game(self, args):
-        #This command creates a new game on an empty rectangular grid of width n and height m (both in the range from 1 and 20). 
-        # It only requires the command status as output.
-        raise NotImplementedError("This command is not yet implemented.")
+        """This command creates a new game on an empty rectangular grid of width n and height m 
+        (both in the range from 1 and 20). It only requires the command status as output."""
+        try:
+            # Initialize the grid size
+            self.width = int(args[0])
+            self.height = int(args[1])
+            
+            # Ensure that the width and height are within valid range
+            if not (1 <= self.width <= 20 and 1 <= self.height <= 20):
+                raise ValueError("Invalid grid dimensions.")
+            
+            # Create an empty grid and initialize game state
+            self.grid = [['.' for _ in range(self.width)] for _ in range(self.height)]
+            self.current_player = 1  # Player 1 starts
+        except:
+            print("= -1")
+            return False
         return True
+
     
     def show(self, args):
-        """ This command shows the current state of the grid, one line per row, followed by the command status. Example:
-        show
-        ..0
-        1..
-        = 1 """
-        raise NotImplementedError("This command is not yet implemented.")
+        """This command shows the current state of the grid, one line per row, followed by the command status."""
+        if self.grid is None:  # Ensure that the grid exists before printing.
+            print("? No game in progress. Start a new game first.", file=sys.stderr)
+            print("= -1")
+            return False
+        
+        # Print the grid row by row
+        for row in self.grid:
+            print(''.join(row))
+        
         return True
     
     def play(self, args):
